@@ -29,6 +29,7 @@ type AppStore struct {
 	EnableMobilePlayer bool   `json:"enableMobilePlayer"`
 	ApiKey             string `json:"apiKey"`
 	PasswordHash       string `json:"passwordHash"`
+	M3u8Downloader     string `json:"m3u8Downloader"`
 }
 
 // defaultAppStore returns default config values matching the TS appStoreDefaults.
@@ -59,5 +60,6 @@ func defaultAppStore() AppStore {
 		EnableMobilePlayer: false,
 		ApiKey:             "",
 		PasswordHash:       "",
+		M3u8Downloader:     "N_m3u8DL-RE",
 	}
 }
