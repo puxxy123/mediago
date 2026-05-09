@@ -66,6 +66,7 @@ type AppConfig struct {
 	ConfigDir      string `json:"config_dir"`
 	EnableAuth     bool   `json:"enable_auth"`
 	StaticDir      string `json:"static_dir"`
+	M3u8Downloader string `json:"m3u8_downloader"`
 }
 
 func (c *AppConfig) GetLocalDir() string {
@@ -98,6 +99,13 @@ func (c *AppConfig) SetProxy(proxy string) {
 
 func (c *AppConfig) SetUseProxy(useProxy bool) {
 	c.UseProxy = useProxy
+}
+
+func (c *AppConfig) GetM3u8Downloader() string {
+	if c.M3u8Downloader == "" {
+		return "N_m3u8DL-RE"
+	}
+	return c.M3u8Downloader
 }
 
 // getSystemDownloadsDir returns the system downloads directory.
@@ -188,7 +196,7 @@ func main() {
 	logger.Infof("Loaded %d download schemas", len(schemas.Schemas))
 
 	// 6. Configure downloader binary paths
-	binMap := getBinaryMap(cfg)
+	binMap := getBinaryMap(cfg, appStore)
 	for dt, binPath := range binMap {
 		logger.Infof("%s downloader: %s", dt, binPath)
 		if binPath == "" {
@@ -239,6 +247,11 @@ func main() {
 		if v, ok := newVal.(string); ok {
 			cfg.SetLocalDir(v)
 			logger.Infof("localDir updated to %q via config change", v)
+		}
+	})
+	appStore.OnDidChange("m3u8Downloader", func(newVal, oldVal any) {
+		if v, ok := newVal.(string); ok {
+			logger.Infof("m3u8Downloader changed to %q - restart required to take effect", v)
 		}
 	})
 
@@ -304,6 +317,9 @@ func syncAppStoreToCfg(store *conf.Conf[AppStore], cfg *AppConfig) {
 	cfg.DeleteSegments = s.DeleteSegments
 	if s.MaxRunner > 0 {
 		cfg.MaxRunner = s.MaxRunner
+	}
+	if s.M3u8Downloader != "" {
+		cfg.M3u8Downloader = s.M3u8Downloader
 	}
 }
 
@@ -385,11 +401,23 @@ func exeExt() string {
 }
 
 // getBinaryMap builds the downloader binary path map from a single deps directory.
-func getBinaryMap(cfg *AppConfig) map[core.DownloadType]string {
+func getBinaryMap(cfg *AppConfig, appStore *conf.Config[AppStore]) map[core.DownloadType]string {
 	ext := exeExt()
 	m := make(map[core.DownloadType]string, len(core.BinaryNames))
+
+	// Get M3U8 downloader preference from appStore
+	m3u8Downloader := appStore.Store().M3u8Downloader
+	if m3u8Downloader == "" {
+		m3u8Downloader = "N_m3u8DL-RE"
+	}
+
 	for dt, name := range core.BinaryNames {
-		m[dt] = filepath.Join(cfg.DepsDir, name+ext)
+		// For M3U8 type, use the configured downloader
+		if dt == core.TypeM3U8 && m3u8Downloader == "yt-dlp" {
+			m[dt] = filepath.Join(cfg.DepsDir, "yt-dlp"+ext)
+		} else {
+			m[dt] = filepath.Join(cfg.DepsDir, name+ext)
+		}
 	}
 	return m
 }
