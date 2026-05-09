@@ -190,22 +190,46 @@ func (d *DownloaderSvc) Download(ctx context.Context, p DownloadParams, cb Callb
 		zap.String("url", p.URL),
 		zap.String("name", p.Name))
 
+	// Determine the effective schema type based on config
+	effectiveType := string(p.Type)
+
+	// If downloading M3U8 with yt-dlp, use youtube schema instead
+	if p.Type == TypeM3U8 {
+		if m3u8Downloader, ok := d.cfg.(interface{ GetM3u8Downloader() string }); ok {
+			if m3u8Downloader.GetM3u8Downloader() == "yt-dlp" {
+				effectiveType = "youtube"
+				logger.Info("Using youtube schema for m3u8 download with yt-dlp",
+					zap.String("id", string(p.ID)))
+			}
+		}
+	}
+
 	// get the Schema for the corresponding download type
-	schema, ok := d.schemas.GetByType(string(p.Type))
+	schema, ok := d.schemas.GetByType(effectiveType)
 	if !ok {
 		logger.Error("Unsupported download type",
 			zap.String("id", string(p.ID)),
-			zap.String("type", string(p.Type)))
+			zap.String("type", effectiveType))
 		return fmt.Errorf("%w: %q", ErrUnsupportedType, p.Type)
 	}
 
+	// Determine the effective download type for binary lookup
+	effectiveDownloadType := p.Type
+	if p.Type == TypeM3U8 {
+		if m3u8Downloader, ok := d.cfg.(interface{ GetM3u8Downloader() string }); ok {
+			if m3u8Downloader.GetM3u8Downloader() == "yt-dlp" {
+				effectiveDownloadType = TypeYoutube
+			}
+		}
+	}
+
 	// get the executable path for the corresponding download type
-	bin, ok := d.binMap[p.Type]
+	bin, ok := d.binMap[effectiveDownloadType]
 	if !ok || bin == "" {
 		logger.Error("Binary not configured for download type",
 			zap.String("id", string(p.ID)),
-			zap.String("type", string(p.Type)))
-		return fmt.Errorf("binary not configured for type %q", p.Type)
+			zap.String("type", string(effectiveDownloadType)))
+		return fmt.Errorf("binary not configured for type %q", effectiveDownloadType)
 	}
 
 	// check if the binary file actually exists on disk
