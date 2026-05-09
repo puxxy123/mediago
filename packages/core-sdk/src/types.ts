@@ -273,6 +273,7 @@ export interface AppStore {
   dockerUrl: string;
   enableMobilePlayer: boolean;
   apiKey: string;
+  m3u8Downloader: string;
 }
 
 // #endregion
