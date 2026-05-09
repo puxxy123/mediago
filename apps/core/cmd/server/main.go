@@ -401,7 +401,7 @@ func exeExt() string {
 }
 
 // getBinaryMap builds the downloader binary path map from a single deps directory.
-func getBinaryMap(cfg *AppConfig, appStore *conf.Config[AppStore]) map[core.DownloadType]string {
+func getBinaryMap(cfg *AppConfig, appStore *conf.Conf[AppStore]) map[core.DownloadType]string {
 	ext := exeExt()
 	m := make(map[core.DownloadType]string, len(core.BinaryNames))
 
