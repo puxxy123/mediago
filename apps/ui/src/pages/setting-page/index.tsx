@@ -430,6 +430,20 @@ const SettingPage: React.FC = () => {
               >
                 <InputNumber min={1} max={50} precision={0} />
               </Form.Item>
+              <Form.Item
+                label={t("m3u8Downloader")}
+                tooltip={t("m3u8DownloaderTooltip")}
+                name="m3u8Downloader"
+              >
+                <Select
+                  options={[
+                    { label: "N_m3u8DL-RE", value: "N_m3u8DL-RE" },
+                    { label: "yt-dlp", value: "yt-dlp" },
+                  ]}
+                  placeholder={t("pleaseSelectM3u8Downloader")}
+                  allowClear={false}
+                />
+              </Form.Item>
             </>
           ),
         },
