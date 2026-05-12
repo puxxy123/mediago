@@ -4,18 +4,18 @@ import { clearTabSources, loadTabSources, saveTabSources } from "./storage";
 
 /**
  * Turn `chrome.webRequest.HttpHeader[]` into the JSON string format
- * the MediaGo downloader expects (a JSON object of header → value).
+ * the MediaGo downloader expects (a JSON array of "Key:Value" strings).
  */
 function formatHeaders(
   headers: chrome.webRequest.HttpHeader[] | undefined,
 ): string | undefined {
   if (!headers || headers.length === 0) return undefined;
-  const parts: Record<string, string> = {};
+  const parts: string[] = [];
   for (const h of headers) {
     if (!h.name) continue;
-    parts[h.name] = h.value ?? "";
+    parts.push(`${h.name}:${h.value ?? ""}`);
   }
-  return JSON.stringify(parts);
+  return parts.length > 0 ? JSON.stringify(parts) : undefined;
 }
 
 /** Dedup by URL — same link captured twice in one page view is one source. */
@@ -133,7 +133,7 @@ export function registerSniffer(): void {
       void handleRequest(details);
     },
     { urls: ["<all_urls>"] },
-    ["requestHeaders"],
+    ["requestHeaders", "extraHeaders"],
   );
 
   chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {

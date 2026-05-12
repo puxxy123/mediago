@@ -27,3 +27,18 @@ export function safeParseJSON<T>(jsonString: string, defaultValue: T): T {
     return defaultValue;
   }
 }
+
+/**
+ * Convert headers string to newline-separated format for display in TextArea.
+ * Accepts both JSON array format (from sniffing) and plain newline format.
+ */
+export function headersToDisplay(headers?: string): string {
+  if (!headers) return "";
+  // Try JSON array format: ["Cookie:xxx","User-Agent:xxx"]
+  const parsed = safeParseJSON<string[]>(headers, null);
+  if (Array.isArray(parsed)) {
+    return parsed.join("\n");
+  }
+  // Already in newline-separated format
+  return headers;
+}

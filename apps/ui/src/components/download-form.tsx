@@ -25,6 +25,7 @@ import { appStoreSelector, useAppStore } from "@/store/app";
 import { downloadFormSelector, useConfigStore } from "@/store/config";
 import { tdApp } from "@/utils";
 import { DownloadTask, DownloadType } from "@mediago/shared-common";
+import { headersToDisplay } from "@mediago/shared-common";
 import { BatchUrlTextarea } from "./batchurl-textarea";
 
 const { TextArea } = Input;
@@ -106,7 +107,12 @@ export default forwardRef<DownloadFormRef, DownloadFormProps>(
         openModal: (value) => {
           setModalOpen(true);
           // Defer so the Form is mounted before setting values
-          queueMicrotask(() => form.setFieldsValue(value));
+          queueMicrotask(() =>
+            form.setFieldsValue({
+              ...value,
+              headers: headersToDisplay(value.headers),
+            }),
+          );
         },
         setFieldsValue: (value) => {
           form.setFieldsValue(value);

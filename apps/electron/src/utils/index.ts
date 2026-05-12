@@ -23,10 +23,10 @@ export async function sleep(second = 1): Promise<void> {
 
 export function formatHeaders(headers: Record<string, string>): string {
   if (!headers) return "";
-  const formatted = Object.entries(headers)
-    .map(([key, value]) => `${key}:${value}`)
-    .join("\n");
-  return formatted;
+  const formatted = Object.entries(headers).map(
+    ([key, value]) => `${key}:${value}`,
+  );
+  return JSON.stringify(formatted);
 }
 
 export const event = new EventEmitter();

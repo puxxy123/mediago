@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"path/filepath"
 	"strconv"
+	"strings"
 
 	"caorushizi.cn/mediago/internal/core"
 	"caorushizi.cn/mediago/internal/db"
@@ -173,9 +174,10 @@ func (s *DownloadTaskService) StartDownload(taskID int64, localPath string, dele
 
 	var headers []string
 	if video.Headers != nil && *video.Headers != "" {
+		// Try JSON array format first: ["Cookie:xxx","User-Agent:xxx"]
 		if err := json.Unmarshal([]byte(*video.Headers), &headers); err != nil {
-			// If parsing fails, treat as empty headers
-			headers = []string{}
+			// Fallback to newline-separated format: Cookie:xxx\nUser-Agent:xxx
+			headers = strings.Split(strings.TrimSpace(*video.Headers), "\n")
 		}
 	}
 
