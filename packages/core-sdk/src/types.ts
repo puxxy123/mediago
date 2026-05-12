@@ -274,6 +274,7 @@ export interface AppStore {
   enableMobilePlayer: boolean;
   apiKey: string;
   m3u8Downloader: string;
+  m3u8DownloaderArgs: string;
 }
 
 // #endregion

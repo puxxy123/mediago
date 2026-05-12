@@ -257,6 +257,20 @@ func (d *DownloaderSvc) Download(ctx context.Context, p DownloadParams, cb Callb
 
 	// build command-line arguments
 	args := d.buildArgs(p, schema)
+
+	// Append custom user-defined arguments for M3U8 downloader
+	if p.Type == TypeM3U8 {
+		if argsProvider, ok := d.cfg.(interface{ GetM3u8DownloaderArgs() string }); ok {
+			customArgs := strings.Fields(argsProvider.GetM3u8DownloaderArgs())
+			if len(customArgs) > 0 {
+				args = append(args, customArgs...)
+				logger.Info("Appended custom downloader arguments",
+					zap.String("id", string(p.ID)),
+					zap.Strings("customArgs", customArgs))
+			}
+		}
+	}
+
 	logger.Debug("Command arguments built",
 		zap.String("id", string(p.ID)),
 		zap.Strings("args", args))

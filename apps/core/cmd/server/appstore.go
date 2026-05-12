@@ -30,6 +30,7 @@ type AppStore struct {
 	ApiKey             string `json:"apiKey"`
 	PasswordHash       string `json:"passwordHash"`
 	M3u8Downloader     string `json:"m3u8Downloader"`
+	M3u8DownloaderArgs string `json:"m3u8DownloaderArgs"`
 }
 
 // defaultAppStore returns default config values matching the TS appStoreDefaults.
@@ -61,5 +62,6 @@ func defaultAppStore() AppStore {
 		ApiKey:             "",
 		PasswordHash:       "",
 		M3u8Downloader:     "N_m3u8DL-RE",
+		M3u8DownloaderArgs: "",
 	}
 }

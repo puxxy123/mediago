@@ -444,6 +444,13 @@ const SettingPage: React.FC = () => {
                   allowClear={false}
                 />
               </Form.Item>
+              <Form.Item
+                label={t("m3u8DownloaderArgs")}
+                tooltip={t("m3u8DownloaderArgsTooltip")}
+                name="m3u8DownloaderArgs"
+              >
+                <Input placeholder={t("pleaseEnterM3u8DownloaderArgs")} />
+              </Form.Item>
             </>
           ),
         },

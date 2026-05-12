@@ -244,6 +244,10 @@ export interface AppStore {
   enableMobilePlayer: boolean;
   // server apikey
   apiKey: string;
+  // M3U8 downloader: N_m3u8DL-RE or yt-dlp
+  m3u8Downloader: string;
+  // Custom arguments for M3U8 downloader
+  m3u8DownloaderArgs: string;
 }
 
 export interface WebSource {

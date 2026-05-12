@@ -66,7 +66,8 @@ type AppConfig struct {
 	ConfigDir      string `json:"config_dir"`
 	EnableAuth     bool   `json:"enable_auth"`
 	StaticDir      string `json:"static_dir"`
-	M3u8Downloader string `json:"m3u8_downloader"`
+	M3u8Downloader     string `json:"m3u8_downloader"`
+	M3u8DownloaderArgs string `json:"m3u8_downloader_args"`
 }
 
 func (c *AppConfig) GetLocalDir() string {
@@ -106,6 +107,10 @@ func (c *AppConfig) GetM3u8Downloader() string {
 		return "N_m3u8DL-RE"
 	}
 	return c.M3u8Downloader
+}
+
+func (c *AppConfig) GetM3u8DownloaderArgs() string {
+	return c.M3u8DownloaderArgs
 }
 
 // getSystemDownloadsDir returns the system downloads directory.
@@ -254,6 +259,11 @@ func main() {
 			logger.Infof("m3u8Downloader changed to %q - restart required to take effect", v)
 		}
 	})
+	appStore.OnDidChange("m3u8DownloaderArgs", func(newVal, oldVal any) {
+		if v, ok := newVal.(string); ok {
+			logger.Infof("m3u8DownloaderArgs changed to %q - restart required to take effect", v)
+		}
+	})
 
 	// 9. Initialize database (optional)
 	var database *db.Database
@@ -321,6 +331,7 @@ func syncAppStoreToCfg(store *conf.Conf[AppStore], cfg *AppConfig) {
 	if s.M3u8Downloader != "" {
 		cfg.M3u8Downloader = s.M3u8Downloader
 	}
+	cfg.M3u8DownloaderArgs = s.M3u8DownloaderArgs
 }
 
 // initConfig initializes configuration following priority order: CLI flags > environment variables > JSON string > defaults.

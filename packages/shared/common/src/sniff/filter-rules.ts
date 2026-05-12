@@ -26,7 +26,7 @@ export interface SniffFilter {
  */
 export const SNIFF_FILTERS: SniffFilter[] = [
   {
-    matches: [/\.m3u8/],
+    matches: [/\.m3u8/, /\/m3u8\//],
     type: DownloadType.m3u8,
   },
   {
